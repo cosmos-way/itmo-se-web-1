@@ -1,0 +1,77 @@
+body {
+    background-color: rgba(14,210,0,0.24);
+}
+p.red{
+    color:red;
+    margin: 0;
+
+}
+
+p.green {
+    color:green;
+    margin: 0;
+}
+
+#container {
+    margin: 30px auto;
+    width: 500px;
+    background-color: white;
+}
+
+#header {
+    background-color: darkgray;
+    color:black;
+    font-family: monospace;
+    font-size: 18px;
+}
+
+#main{
+    padding: 10px 5px;
+}
+
+#results {
+    width:90%;
+    margin: 8px;
+    border-collapse: collapse;
+}
+
+input[type=text] {
+    width: 25px;
+    margin: 8px 0;
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 0;
+}
+
+#canv {
+    margin: 5px auto;
+    width: 200px;
+    height: 100px;
+}
+
+
+
+#rCheckboxes>input {
+    margin: 0 3px;
+}
+/* псевдокласс */
+
+#rCheckboxes>input:hover {
+    background-color: white;
+}
+/* псевдоэлемент */
+#header>p::first-letter
+{
+    font-weight: bold;
+    font-size: 130%;
+}
+
+form>input[type=button], form>input[type=submit]
+{
+    margin: 5px 8px;
+    background-color: white;
+}
+
+
