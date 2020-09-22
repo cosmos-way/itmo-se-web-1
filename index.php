@@ -41,8 +41,8 @@ function intersection($xVal, $yVal, $rVal){
 function main(){
     $time_start = microtime(true);
     // поверяем не пустой ли запрос
-    if (!empty($_POST))
-        retunr;
+    if (empty($_POST))
+        return;
     $x = $_POST["xValue"];
     $y = $_POST["yValue"];
     $r = $_POST["rValue"];
@@ -66,15 +66,21 @@ function main(){
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Лабораторная работа #1</title>
     <script type="text/javascript" src="script.js"></script>
     <link rel="stylesheet" href="style.css">
     <script>
         let myCanvas;
         window.onload = function(){
-            initElementsOfForm();
+            <?php
+            if (!empty($_POST))
+                echo 'initElementsOfForm(' . $_POST["xValue"] .  ', ' . $_POST["yValue"] .  ', ' . $_POST["rValue"] .  ');';
+            else
+                echo 'initElementsOfForm();';
+            ?>
+
             myCanvas = new Canv(200,100);
-            myCanvas.setVars(1,1,3);
+            myCanvas.setVars(0,0,3);
             myCanvas.draw();
 
             <?php
@@ -113,7 +119,7 @@ function main(){
 
             <div id="yCheckboxes">
                 <label id="yLab" for="y">Y = </label>
-                <input id="y" name="yText" type="text"/>
+                <input id="yText" name="yText" type="text"/>
             </div>
 
             <div id="rCheckboxes">

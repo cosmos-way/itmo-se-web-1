@@ -1,4 +1,5 @@
-function initElementsOfForm() {
+function initElementsOfForm(x,y,r) {
+
     const xDiv = document.getElementById("xCheckboxes");
     const rDiv = document.getElementById("rCheckboxes");
     let i, j;
@@ -8,28 +9,40 @@ function initElementsOfForm() {
         input.setAttribute("value", i);
         input.setAttribute("type", "checkbox");
         input.setAttribute("name", "xCheckbox");
+        if(x && Number(x) == i)
+            input.setAttribute("checked", "");
         let label = document.createElement("label");
         label.setAttribute("for", input.getAttribute("id"));
         label.innerText = i.toString() ;
         xDiv.appendChild(input);
         xDiv.appendChild(label);
     }
+
+    if(y)
+        document.getElementById("yText").setAttribute("value", y.toString());
+
     for(i=1; i<6; i++){
         let input = document.createElement("input");
         input.setAttribute("type", "button");
         input.setAttribute("value", i);
-        input.setAttribute("name", "yButton");
-        input.setAttribute("onclick", "changeY(" + i.toString() +")");
+        input.setAttribute("name", "rButton");
+        input.setAttribute("onclick", "changeR(" + i.toString() +")");
+        if(r && Number(r) == i)
+            input.setAttribute("checked","");
         rDiv.appendChild(input);
-
     }
+    if(r)
+        changeR(Number(r));
+    
 }
 
 function addNewValue(timeID, exeTime, x,y,r,result){
     // проверка на сущестование подобного значения
     if(!localStorage.getItem(timeID))
         window.localStorage.setItem(timeID, exeTime+" "+x+" "+y+" "+r+" "+result );
+
 }
+
 
 function fillTable(){
     let table = document.getElementById("results");
@@ -66,24 +79,19 @@ function fillTable(){
 
     }
 }
-function getPrevInput(){
 
-}
 
-function changeY(rVal) {
-    // document.getElementById("rLab").innerHTML = "r = " + rVal;
+function changeR(rVal) {
+    document.getElementById("rLab").innerHTML = "r = " + rVal;
     document.getElementById("rValue").setAttribute("value", rVal);
-    let yButtons = document.getElementsByClassName("yButton");
-    for(let i=0; i< yButtons.length; i++)
-    {
-        yButtons[i].setAttribute("checked", false);
-    }
+    // let yButtons = document.getElementsByClassName("yButton");
+    // for(let i=0; i< yButtons.length; i++)
+    // {
+    //     yButtons[i].setAttribute("checked", false);
+    // }
 }
 
 function formValidation() {
-    // Y:
-    // проверяем есть ли `,` -> `.`
-    // Число (float, int) ли это?!
     document.getElementById("timeID").setAttribute("value", Date.now().toString());
     let y = document.forms["myForm"]["yText"].value;
     if(y.indexOf(","))
@@ -117,8 +125,6 @@ function formValidation() {
         return false;
     }
     return true;
-
-
 }
 
 class Canv {
