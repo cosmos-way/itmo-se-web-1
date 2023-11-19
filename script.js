@@ -35,11 +35,10 @@ function initElementsOfForm(x,y,r) {
         changeR(Number(r));
     
 }
-
 function addNewValue(timeID, exeTime, x,y,r,result){
     // проверка на сущестование подобного значения
-    if(!localStorage.getItem(timeID))
-        window.localStorage.setItem(timeID, exeTime+" "+x+" "+y+" "+r+" "+result );
+    if(!localStorage.getItem(timeID.replace(':','')))
+        window.localStorage.setItem(timeID.replace(':',''), exeTime+" "+x+" "+y+" "+r+" "+result );
 
 }
 
@@ -49,8 +48,10 @@ function fillTable(){
     let lsSize = window.localStorage.length;
     console.log(lsSize);
     console.log(window.localStorage);
+    let keys = Object.keys(window.localStorage).sort();
+
     for(let i=0; i<lsSize; i++) {
-        let key = window.localStorage.key(i);
+        let key = keys.at(i);
         let row = table.insertRow(i+1);
 
         // let cell = row.insertCell(0);
@@ -71,12 +72,8 @@ function fillTable(){
                 }
                 default:
                     cell.innerHTML = item;
-
             }
-
         });
-
-
     }
 }
 
@@ -112,7 +109,7 @@ function formValidation() {
             checkedCount++;
             x = Number(document.forms["myForm"]["xCheckbox"][i].value);
             if(checkedCount > 1) {
-                alert("X value is not valid.");
+                alert("X value is not valid."); // todo убрать. добавить в форму. везде где alert
                 return false;
             }
         }
