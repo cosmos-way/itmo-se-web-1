@@ -2,52 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Лабораторная работа #1</title>
+    <title>Лабораторная работа №1</title>
     <script type="text/javascript" src="script.js"></script>
     <link rel="stylesheet" href="style.css">
-    <script>
-        let myCanvas;
-        window.onload = function(){
-            <?php
-            if (!empty($_POST))
-                echo 'initElementsOfForm(' . $_POST["xValue"] .  ', ' . $_POST["yValue"] .  ', ' . $_POST["rValue"] .  ');';
-        else
-            echo 'initElementsOfForm();';
-                ?>
-
-            myCanvas = new Canv(200,100);
-            myCanvas.setVars(0,0,3);
-            myCanvas.draw();
-
-            <?php
-            main();
-                ?>
-            fillTable();
-
-        }
-        function drawMe(){
-            if(!formValidation())
-                return false;
-            myCanvas.setVars( Number(document.getElementById("xValue").getAttribute("value")),
-                Number(document.getElementById("yValue").getAttribute("value")),
-                Number(document.getElementById("rValue").getAttribute("value")) );
-            myCanvas.draw();
-            myCanvas.draw();
-        }
-    </script>
-
 </head>
 <body>
 <div id="container">
     <div id="header">
-        <p>Лабораторная работа #1</p>
+        <p>Лабораторная работа №1</p>
         <p>Киселёв Константин</p>
         <p>P3225<br/>Вариант 2327</p>
     </div>
     <div id="main">
         <div id="canv">
         </div>
-        <form name="myForm" action="index.php" onsubmit="return formValidation()" method="post">
+        <form name="myForm" action="add_value.php" >
 
             <div id="xCheckboxes">
                 <label>X = </label>
@@ -61,12 +30,9 @@
             <div id="rCheckboxes">
                 <label id="rLab" >R = </label>
             </div>
-            <input type="button" value="Draw" onclick="drawMe()">
-            <input type="hidden" id="xValue" name="xValue" value="">
-            <input type="hidden" id="yValue" name="yValue" value="">
             <input type="hidden" id="rValue" name="rValue" value="">
-            <input type="hidden" id="timeID" name="timeID" value="">
-            <input type="submit">
+            <input type="button" value="Добавить" onclick="return onFormSubmit()">
+            <input type="button" value="Отрисовать" onclick="return onFormDraw()">
         </form>
         <table id="results">
             <tr>

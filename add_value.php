@@ -1,5 +1,4 @@
 <?php
-
 // Валидация входных данных
 function inputValidation($xVal, $yVal, $rVal)
 {
@@ -31,31 +30,40 @@ function intersection($xVal, $yVal, $rVal)
             return true;
     }
     return false;
-
 }
-
 function main()
 {
+    $postData = file_get_contents('php://input');
+
+    if (empty($postData)) {
+        http_response_code(400);
+        echo "Empty POST entry.";
+        exit;
+    }
+    $post = json_decode($postData, true);
+//    var_dump($post);
+    $date = new DateTimeImmutable();
+    $timestamp = $date->getTimestamp();
     $time_start = microtime(true);
     // поверяем не пустой ли запрос
-    if (empty($_POST))
-        return;
-    $x = $_POST["xValue"];
-    $y = $_POST["yValue"];
-    $r = $_POST["rValue"];
-    $timeID = $_POST["timeID"];
+    $x = $post["x"];
+    $y = $post["y"];
+    $r = $post["r"];
 
     // проводим валидацию данных
     if (!inputValidation($x, $y, $r)) {
+        http_response_code(400);
         echo "console.log('PHP validation error.');";
         return;
     }
-
     $result = intersection($x, $y, $r);
 
     $time_end = microtime(true);
-    $execution_time = ($time_end - $time_start) / 1000; // millisecond
-    echo "addNewValue('" . $timeID . "'," . $execution_time . "," . $x . "," . $y . "," . $r . "," . ($result ? "1" : "0") . ");";
+    $execution_time = number_format(($time_end - $time_start)*1000, 10); // millisecond
+    $arr = array('x' => $x, 'y' => $y, 'r' => $r, 'dtCreate' => $timestamp, 'execTime' => $execution_time, 'result' => $result);
+    header("Content-Type: application/json");
+    echo json_encode($arr);
+    exit();
 }
-
+main();
 ?>

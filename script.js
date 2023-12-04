@@ -1,3 +1,51 @@
+let myCanvas;
+function makeRequest(requestData){
+    // добавить время
+    let xhr = new XMLHttpRequest();
+    xhr.upload.onerror = function() {
+        alert(`Произошла ошибка во время отправки: ${xhr.status}`);
+    };
+    xhr.onload = function()
+    {
+        let responseObj = xhr.response;
+        addNewValue(responseObj.dtCreate
+            , responseObj.execTime
+            , responseObj.x
+            , responseObj.y
+            , responseObj.r
+            , responseObj.result
+        );
+    }
+
+    // конфигурируем запрос
+    xhr.open('POST', 'add_value.php');
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    xhr.responseType = 'json';
+    let json = JSON.stringify({
+        x: requestData.x,
+        y: requestData.y,
+        r: requestData.r
+    });
+    xhr.send(json);
+}
+function onFormSubmit()
+{
+    let values = makeFormValidationAndGetValues();
+    if(!values.isValid)
+        return;
+    makeRequest(values.data);
+}
+function onFormDraw()
+{
+    let values = makeFormValidationAndGetValues();
+    if(!values.isValid)
+    {
+        return;
+    }
+    myCanvas.setVars(values.data.x, values.data.y, values.data.r);
+    myCanvas.draw();
+    myCanvas.draw();
+}
 function initElementsOfForm(x,y,r) {
 
     const xDiv = document.getElementById("xCheckboxes");
@@ -37,70 +85,72 @@ function initElementsOfForm(x,y,r) {
 }
 function addNewValue(timeID, exeTime, x,y,r,result){
     // проверка на сущестование подобного значения
-    if(!localStorage.getItem(timeID.replace(':','')))
-        window.localStorage.setItem(timeID.replace(':',''), exeTime+" "+x+" "+y+" "+r+" "+result );
-
+    if(!localStorage.getItem(timeID)) {
+        window.localStorage.setItem(timeID, exeTime + " " + x + " " + y + " " + r + " " + result);
+        myCanvas.setVars(x,y,r);
+        myCanvas.draw();
+        appendTable(timeID, exeTime, x,y,r,result);
+    }
 }
-
-
+function appendTable(timeID, exeTime, x,y,r,result)
+{
+    let table = document.getElementById("results");
+    let index = table.rows.length;
+    let row = table.insertRow(index);
+    row.insertCell(0).innerText = index;
+    row.insertCell(1).innerText = (new Date( Number(timeID)*1000 )).toLocaleString();
+    row.insertCell(2).innerText = exeTime;
+    row.insertCell(3).innerText = x;
+    row.insertCell(4).innerText = y;
+    row.insertCell(5).innerText = r;
+        if(result == "true" || result)
+            row.insertCell(6).innerHTML = '<p class=\"green\">IN</p>';
+        else
+            row.insertCell(6).innerHTML = "<p class=\"red\">OUT</p>";
+}
 function fillTable(){
     let table = document.getElementById("results");
     let lsSize = window.localStorage.length;
-    console.log(lsSize);
-    console.log(window.localStorage);
     let keys = Object.keys(window.localStorage).sort();
 
     for(let i=0; i<lsSize; i++) {
         let key = keys.at(i);
         let row = table.insertRow(i+1);
-
-        // let cell = row.insertCell(0);
         let data = window.localStorage.getItem(key).split(" ");
         row.insertCell(0).innerText = i+1;
         let dd =  new Date(key);
-        row.insertCell(1).innerHTML = (new Date( Number(key) )).toString().split(" ")[4];
+        row.insertCell(1).innerText = (new Date( Number(key)*1000 )).toLocaleString();
         data.forEach(function(item, i){
             let cell = row.insertCell(i+2);
             switch (i){
-
                 case 4:{
-                    if(item == "1")
+                    if(item == "true")
                         cell.innerHTML = '<p class=\"green\">IN</p>';
                     else
                         cell.innerHTML = "<p class=\"red\">OUT</p>";
                     break;
                 }
                 default:
-                    cell.innerHTML = item;
+                    cell.innerText = item;
             }
         });
     }
 }
-
-
 function changeR(rVal) {
     document.getElementById("rLab").innerHTML = "r = " + rVal;
     document.getElementById("rValue").setAttribute("value", rVal);
-    // let yButtons = document.getElementsByClassName("yButton");
-    // for(let i=0; i< yButtons.length; i++)
-    // {
-    //     yButtons[i].setAttribute("checked", false);
-    // }
 }
-
-function formValidation() {
-    document.getElementById("timeID").setAttribute("value", Date.now().toString());
+function makeFormValidationAndGetValues() {
+    // document.getElementById("timeID").setAttribute("value", Date.now().toString());
     let y = document.forms["myForm"]["yText"].value;
-    if(y.indexOf(","))
-        y.replace(",","."), document.forms["myForm"]["yText"].value = y;
+    y.replace(",",".");
     y = Number(y);
-    Number.isNaN(y);
     if (Number.isNaN(y) || (y<=-5 || y>=3)) {
         alert("Y value is not valid.");
-        return false;
+        return {
+            isValid: false
+        }
     }
-    document.getElementById("yValue").setAttribute("value", y);
-
     let xCount = document.forms["myForm"]["xCheckbox"].length;
     let checkedCount = 0;
     let x;
@@ -109,19 +159,30 @@ function formValidation() {
             checkedCount++;
             x = Number(document.forms["myForm"]["xCheckbox"][i].value);
             if(checkedCount > 1) {
-                alert("X value is not valid."); // todo убрать. добавить в форму. везде где alert
-                return false;
+                alert("X value is not valid.");
+                return {
+                    isValid: false
+                }
             }
         }
     }
-    document.getElementById("xValue").setAttribute("value", x);
 
     let r = document.getElementById("rValue").getAttribute("value");
     if(r == "" || r>"5" || r<"1"){
         alert("R value is not valid.");
-        return false;
+        return {
+            isValid: false
+        }
     }
-    return true;
+    return {
+        isValid: true,
+        data:
+            {
+                x: x,
+                y: y,
+                r: r
+            }
+    };
 }
 
 class Canv {
@@ -201,16 +262,18 @@ constructor(width, height){
         this.#m_drawAxis();
         this.#m_drawUnits();
         this.#m_drawShapes();
-
     }
     setVars(xVar,yVar,rVar){
-        // после получения значений x, y, r необходимо определить максимальное и после этого изсенить масштаб единицы
+        // после получения значений x, y, r необходимо определить максимальное и после этого изменить масштаб
         this.#m_point = {x:xVar, y: yVar};
         this.#m_settings= {r:rVar};
     }
+}
 
-
-
-
-
+window.onload = function(){
+    initElementsOfForm();
+    myCanvas = new Canv(200,100);
+    myCanvas.setVars(0,0,3);
+    myCanvas.draw();
+    fillTable();
 }
